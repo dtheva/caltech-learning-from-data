@@ -8,39 +8,40 @@ N = 100
 def create_dataset(size=N):
     return np.random.uniform(-1,1,(size,d))
 
-def create_targets():
-    w = np.random.uniform(-1,1,(1,d+1))[0]
-    data = create_dataset()
-    y = calc_target(w,data)
-    return w, (data,y)
+def create_targets(plot=False):
+    line_coords = np.random.uniform(-1,1,(2,d))
+    slope,intercept = np.polyfit(line_coords[:,0],line_coords[:,1],1)
 
-def calc_target(w, data):
-    return np.sign(w.dot(add_bias(data).T))
+    data = create_dataset()
+    y = calc_target((slope,intercept),data)
+    
+    if plot:
+        x_coords = np.array([-1,1])
+        y_coords = x_coords*slope + intercept
+        plt.plot(x_coords,y_coords) 
+        plt.scatter(data[y>0][:,0],data[y>0][:,1],color="red")
+        plt.scatter(data[y<0][:,0],data[y<0][:,1],color="blue")
+        
+        plt.xlim([-1,1])
+        plt.ylim([-1,1])
+        plt.show()
+
+    return (slope,intercept), (data,y)    
+
+def calc_target(line, data):
+    slope = line[0]
+    intercept = line[1]
+    x0 = data[:,0]
+    y0 = data[:,1]
+    
+    y_out = np.zeros(x0.shape[0])
+    y_out[x0*slope + intercept > y0] = 1
+    y_out[x0*slope + intercept < y0] = -1
+
+    return y_out
 
 def add_bias(X):
     return np.hstack((np.ones((X.shape[0],1)), X))
-
-def verify_data(g, data):
-    X = data[0]
-    y = data[1]
-    
-    plt.scatter(X[y>0][:,0],X[y>0][:,1],color="red")
-    plt.scatter(X[y<0][:,0],X[y<0][:,1],color="blue")
-    
-    x2_intercept = -g[0]/g[2]
-    x1_intercept = -g[0]/g[1]
-
-    slope,intercept = np.polyfit([0,x1_intercept],[x2_intercept,0],1)
-    x_intervals = np.arange(-1,1.1,.2)
-    y_intervals = x_intervals*slope + intercept
-    plt.plot(x_intervals,y_intervals)
-    
-    plt.axhline(y=0,color="gray")
-    plt.axvline(x=0,color="gray")
-    plt.xlim([-1,1])
-    plt.ylim([-1,1])
-    
-    plt.show()
     
 def sigmoid(x):
     return 1/(1+np.e**-x)
@@ -80,19 +81,17 @@ errors = []
 num_iter=100
 for i in range(1,num_iter+1):
     print("Iteration: [ {} / {} ]".format(i,num_iter))
-    target_function, target_data = create_targets()
-    #verify_data(target_function,target_data)
+    target_function, target_data = create_targets(plot=False)
     
     lr = LogisticRegression()
     num_epoch = lr.fit(target_data[0],target_data[1])
     
-    new_X = create_dataset(10000)
+    new_X = create_dataset(100)
     new_y = calc_target(target_function, new_X)
     error = lr.calc_cross_entropy(new_X,new_y)
     
     num_epochs.append(num_epoch)
     errors.append(error)
-#    break
 
 print("Average number of epochs: %d" % np.mean(num_epochs))
 print("Average cross entropy error: %.3f" % np.mean(errors))
