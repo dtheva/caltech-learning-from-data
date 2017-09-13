@@ -93,17 +93,19 @@ def check_rbf():
         print("E(in) for C={}: {:.3f}".format(C, calc_error(df_rbf.digit, df_rbf.prediction)))
         print("E(out) for C={}: {:.3f}".format(C, calc_error(df_rbf_test.digit,df_rbf_test.prediction)))
     
-df_train = pd.read_csv("features.train",delim_whitespace=True,header=None)
-df_test = pd.read_csv("features.test",delim_whitespace=True,header=None)
-
-cols = ["digit", "intensity", "symmetry"]
-df_train.columns = cols
-df_test.columns = cols
-
-target = "target"
-predictors = ["intensity","symmetry"]
-
-check_one_vs_all()
-check_one_vs_five()
-check_cv()
-check_rbf()
+    
+if __name__ == "__main__":
+    df_train = pd.read_csv("features.train",delim_whitespace=True,header=None)
+    df_test = pd.read_csv("features.test",delim_whitespace=True,header=None)
+    
+    cols = ["digit", "intensity", "symmetry"]
+    df_train.columns = cols
+    df_test.columns = cols
+    
+    target = "target"
+    predictors = ["intensity","symmetry"]
+    
+    check_one_vs_all()
+    check_one_vs_five()
+    check_cv()
+    check_rbf()

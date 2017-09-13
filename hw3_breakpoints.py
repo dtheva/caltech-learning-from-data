@@ -58,7 +58,7 @@ def check_shatterable(data,output):
 
 max_N = 10 # max # of points
 dim = 3 # dimensionality of points
-num_datasets = 10
+num_datasets = 20
 
 for N in range(3,max_N+1):
     possible_dichotomies = generate_possible_dichotomies(N)
@@ -78,5 +78,5 @@ for N in range(3,max_N+1):
             break
         
     if breakpoint:
-        print("Breakpoint at {} points in {} dimensions".format(N,dim))
+        print("Breakpoint at {} points in {} dimensions.".format(N,dim))
         break

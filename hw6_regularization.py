@@ -32,52 +32,53 @@ def calc_linear_weights_regularized(X,y,lam):
 def get_lambda(k):
     return 10**k
 
-train = np.fromfile("in.dta",sep=" ").reshape(-1,3)
-test = np.fromfile("out.dta",sep=" ").reshape(-1,3)
-
-X_train = train[:,:-1]
-y_train = train[:,-1]
-X_test = test[:,:-1]
-y_test = test[:,-1]
-
-plot_scatter(X_train,y_train,title="train data")
-
-w = calc_linear_weights(X_train,y_train)
-prediction = np.sign(X_train.dot(w))
-plot_scatter(X_train,prediction,title="initial regression")
-
-X_train_nonlinear = calc_nonlinear(X_train)
-w = calc_linear_weights(X_train_nonlinear,y_train)
-prediction = np.sign(X_train_nonlinear.dot(w))
-plot_scatter(X_train,prediction,title="nonlinear regression")
-
-X_test_nonlinear = calc_nonlinear(X_test)
-prediction_test = np.sign(X_test_nonlinear.dot(w))
-plot_scatter(X_test,prediction_test,title="nonlinear regression (oos)")
-
-error_insample = len(prediction[prediction != y_train])/len(y_train)
-error_outsample = len(prediction_test[prediction_test != y_test])/len(y_test)
-print("in-sample error: %.2f" % error_insample)
-print("out-sample error: %.2f" % error_outsample)
-
-errors = []
-for k in [2,1,0,-1,-2]:
-    lam = get_lambda(k=k)
-    w_reg = calc_linear_weights_regularized(X_train_nonlinear,y_train,lam)
-    prediction_reg = np.sign(X_train_nonlinear.dot(w_reg))
-    plot_scatter(X_train,prediction_reg,title="nonlinear regression with regularization")
+if __name__ == "__main__":
+    train = np.fromfile("in.dta",sep=" ").reshape(-1,3)
+    test = np.fromfile("out.dta",sep=" ").reshape(-1,3)
     
-    prediction_reg_test = np.sign(X_test_nonlinear.dot(w_reg))
-    plot_scatter(X_test,prediction_reg_test,title="nonlinear regression with regularization (oos)")
+    X_train = train[:,:-1]
+    y_train = train[:,-1]
+    X_test = test[:,:-1]
+    y_test = test[:,-1]
     
-    error_reg_insample = len(prediction_reg[prediction_reg != y_train])/len(y_train)
-    error_reg_outsample = len(prediction_reg_test[prediction_reg_test != y_test])/len(y_test)
-    print("in-sample error (reg,k=%d): %.2f" % (k, error_reg_insample))
-    print("out-sample error (reg,k=%d): %.2f" % (k, error_reg_outsample))
-
-    errors.append([k,error_reg_outsample])
+    plot_scatter(X_train,y_train,title="train data")
     
-
-plt.plot([x[0] for x in errors],[x[1] for x in errors])
-plt.title("Error by k")
-plt.show()
+    w = calc_linear_weights(X_train,y_train)
+    prediction = np.sign(X_train.dot(w))
+    plot_scatter(X_train,prediction,title="initial regression")
+    
+    X_train_nonlinear = calc_nonlinear(X_train)
+    w = calc_linear_weights(X_train_nonlinear,y_train)
+    prediction = np.sign(X_train_nonlinear.dot(w))
+    plot_scatter(X_train,prediction,title="nonlinear regression")
+    
+    X_test_nonlinear = calc_nonlinear(X_test)
+    prediction_test = np.sign(X_test_nonlinear.dot(w))
+    plot_scatter(X_test,prediction_test,title="nonlinear regression (oos)")
+    
+    error_insample = len(prediction[prediction != y_train])/len(y_train)
+    error_outsample = len(prediction_test[prediction_test != y_test])/len(y_test)
+    print("in-sample error: %.2f" % error_insample)
+    print("out-sample error: %.2f" % error_outsample)
+    
+    errors = []
+    for k in [2,1,0,-1,-2]:
+        lam = get_lambda(k=k)
+        w_reg = calc_linear_weights_regularized(X_train_nonlinear,y_train,lam)
+        prediction_reg = np.sign(X_train_nonlinear.dot(w_reg))
+        plot_scatter(X_train,prediction_reg,title="nonlinear regression with regularization")
+        
+        prediction_reg_test = np.sign(X_test_nonlinear.dot(w_reg))
+        plot_scatter(X_test,prediction_reg_test,title="nonlinear regression with regularization (oos)")
+        
+        error_reg_insample = len(prediction_reg[prediction_reg != y_train])/len(y_train)
+        error_reg_outsample = len(prediction_reg_test[prediction_reg_test != y_test])/len(y_test)
+        print("in-sample error (reg,k=%d): %.2f" % (k, error_reg_insample))
+        print("out-sample error (reg,k=%d): %.2f" % (k, error_reg_outsample))
+    
+        errors.append([k,error_reg_outsample])
+        
+    
+    plt.plot([x[0] for x in errors],[x[1] for x in errors])
+    plt.title("Error by k")
+    plt.show()
